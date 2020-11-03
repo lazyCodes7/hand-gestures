@@ -20,11 +20,12 @@ void cal_distance(){
   digitalWrite(trigPin1, LOW);
   
   durationSensor1 = pulseIn(echoPin1, HIGH, 5000);
-  r1 = 3.4 * durationSensor1 / 2;                  // calculation to get the measurement in cm using the time returned by the pulsein function.     
+  r1 = 3.4 * durationSensor1 / 2;   
   distance1 = r1 / 100.00;
   
-  Serial.print("Distance1: ");
-  Serial.println(distance1);
+  if(distance1>50){
+    distance1=50;
+  }
   
   digitalWrite(trigPin2, LOW);
   delayMicroseconds(2);
@@ -36,8 +37,9 @@ void cal_distance(){
   r2 = 3.4 * durationSensor2 / 2;     
   distance2 = r2 / 100.00;
 
-  Serial.print("Distance2: ");
-  Serial.println(distance2);
+  if(distance2>50){
+    distance2=50;
+  }
 
   delay(2000);
 }
@@ -45,8 +47,7 @@ void cal_distance(){
 void setup() 
 {
   Serial.begin(9600);
-  pinMode(trigPin1, OUTPUT); // initialize the trigger and echo pins of both the sensor as input and output:
-  pinMode(echoPin1, INPUT);
+  pinMode(trigPin1, OUTPUT); 
   pinMode(trigPin2, OUTPUT);
   pinMode(echoPin2, INPUT);
   delay (1000);
@@ -56,16 +57,61 @@ void setup()
 void loop()
 {
   cal_distance();
-  if ((distance1<40 && distance1>30) && (distance2<40 && distance2>30)){
+  if ((distance1<50 && distance2<50) && (distance1>40 && distance2>40)){
     Serial.println("Play/Pause"); 
     delay (500);
   }
-  else if(distance1<40 && distance1>20){
-    Serial.println("previous");
-    delay(500);
+  if(distance1>=13 && distance1>=17){
+     delay(100); 
+    cal_distance();
+    if (distance1>=13 && distance1<=17)
+    {
+      Serial.println("Left Locked");
+      while(distance1<=40)
+      {
+        cal_distance();
+        if (distance1<10) 
+        { 
+          Serial.println ("Vup"); 
+          delay (300);
+          
+        }
+        
+        if (distance1>20) 
+        {
+          Serial.println ("Vdown"); 
+          delay (300);
+        }
+        
+      }
+      
+    }
+      
   }
-  else if(distance2<40 && distance2>20){
-    Serial.println("next");
+  if (distance2>=13 && distance2<=17)
+  {
+      delay(100); 
+      cal_distance();
+      if (distance2>=13 && distance2<=17)
+      {
+        Serial.println("Right Locked");
+        while(distance2<=40)
+        {
+          cal_distance();
+          if (distance2<10) 
+          {
+            Serial.println ("Rewind"); 
+            delay (300);
+          }
+          if (distance2>20) 
+          {
+            Serial.println ("Forward"); 
+            delay (300);
+          }
+      }
+      
+    }
   }
+  
   
 }
